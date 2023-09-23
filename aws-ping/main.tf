@@ -20,3 +20,12 @@ provider "aws"{
 	region=var.region
 	profile=var.profile
 }
+
+resource "aws_instance" "app_server" {
+	ami           = "ami-01342111f883d5e4e"
+	instance_type = "t2.micro"
+
+	tags = {
+		Name = "ExampleAppServerInstance"
+	}
+}
