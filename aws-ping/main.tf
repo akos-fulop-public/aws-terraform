@@ -21,6 +21,10 @@ provider "aws" {
   profile = var.profile
 }
 
+resource "aws_iam_account_alias" "alias" {
+  account_alias = "akos-fulop"
+}
+
 resource "aws_instance" "app_server" {
   ami           = "ami-0f845a2bba44d24b2"
   instance_type = "t2.micro"
