@@ -6,6 +6,10 @@ variable "profile" {
   default = "terraform"
 }
 
+locals {
+  deploy_ec2_playground = false
+}
+
 terraform {
   required_providers {
     aws = {
@@ -27,5 +31,5 @@ resource "aws_iam_account_alias" "alias" {
 
 module "ec2_practice_env" {
   source = "./ec2practice"
-  count = 1
+  count = local.deploy_ec2_playground == true ? 1 : 0
 }
