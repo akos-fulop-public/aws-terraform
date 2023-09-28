@@ -6,8 +6,9 @@ variable "profile" {
   default = "terraform"
 }
 
-locals {
-  deploy_ec2_playground = false
+variable "deploy_ec2_playground" {
+  type = bool
+  default = false
 }
 
 terraform {
@@ -36,5 +37,5 @@ resource "aws_key_pair" "akos_personal" {
 
 module "ec2_practice_env" {
   source = "./ec2practice"
-  count = local.deploy_ec2_playground == true ? 1 : 0
+  count = var.deploy_ec2_playground == true ? 1 : 0
 }
