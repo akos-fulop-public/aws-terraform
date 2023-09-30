@@ -39,3 +39,7 @@ module "ec2_practice_env" {
   source = "./ec2practice"
   count = var.deploy_ec2_playground == true ? 1 : 0
 }
+
+output "ec2_practice_instance_url" {
+  value = module.ec2_practice_env[*].instance_url
+}

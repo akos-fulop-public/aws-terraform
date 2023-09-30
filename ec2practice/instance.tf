@@ -17,6 +17,10 @@ sudo systemctl start httpd
   EOF
 }
 
+output "instance_url" {
+  value = aws_instance.app_server.public_dns
+}
+
 data "aws_vpc" "default" {
   default = true
 }
