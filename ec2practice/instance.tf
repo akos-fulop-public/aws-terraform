@@ -7,7 +7,14 @@ resource "aws_instance" "app_server" {
   }
 
   key_name               = "akos-notebook"
-  vpc_security_group_ids = [aws_security_group.ssh_inbound.id]
+  vpc_security_group_ids = [aws_security_group.ssh_inbound.id,aws_security_group.http_inbound.id,aws_security_group.internet.id]
+
+  user_data = <<EOF
+#!/bin/bash
+sudo yum install -y httpd
+sudo systemctl enable httpd
+sudo systemctl start httpd
+  EOF
 }
 
 data "aws_vpc" "default" {
@@ -26,6 +33,27 @@ resource "aws_security_group" "ssh_inbound" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+}
+
+resource "aws_security_group" "http_inbound" {
+  name = "allow_http"
+  description = "Allow HTTP"
+  vpc_id = data.aws_vpc.default.id
+
+  ingress {
+    description = "HTTP"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "internet" {
+  name = "allow_internet"
+  description = "Allow internet"
+  vpc_id = data.aws_vpc.default.id
 
   egress {
     from_port = 0
