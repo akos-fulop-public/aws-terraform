@@ -87,6 +87,6 @@ resource "aws_lb" "test" {
   name               = "test-lb-tf"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.internet.id]
+  security_groups    = [aws_security_group.http_inbound.id,aws_security_group.internet.id]
   subnets            = data.aws_subnets.default_subnets.ids
 }
