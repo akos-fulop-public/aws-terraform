@@ -14,11 +14,8 @@ resource "aws_instance" "app_server" {
 sudo yum install -y httpd
 sudo systemctl enable httpd
 sudo systemctl start httpd
+echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
   EOF
-}
-
-output "instance_url" {
-  value = aws_instance.app_server.public_dns
 }
 
 data "aws_vpc" "default" {
@@ -100,4 +97,8 @@ resource "aws_lb_listener" "load_balancer_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.test_target_group.arn
   }
+}
+
+output "app_url" {
+  value = aws_lb.test.dns_name
 }
