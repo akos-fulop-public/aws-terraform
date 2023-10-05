@@ -1,23 +1,3 @@
-resource "aws_instance" "app_server" {
-  ami           = "ami-0f845a2bba44d24b2"
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "ExampleAppServerInstance"
-  }
-
-  key_name               = "akos-notebook"
-  vpc_security_group_ids = [aws_security_group.ssh_inbound.id,aws_security_group.http_inbound.id,aws_security_group.internet.id]
-
-  user_data = <<EOF
-#!/bin/bash
-sudo yum install -y httpd
-sudo systemctl enable httpd
-sudo systemctl start httpd
-echo "<h1>Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
-  EOF
-}
-
 data "aws_vpc" "default" {
   default = true
 }
@@ -71,12 +51,6 @@ resource "aws_lb_target_group" "test_target_group" {
   vpc_id = data.aws_vpc.default.id
 }
 
-resource "aws_lb_target_group_attachment" "test" {
-  target_group_arn = aws_lb_target_group.test_target_group.arn
-  target_id        = aws_instance.app_server.id
-  port             = 80
-}
-
 data "aws_subnets" "default_subnets" {
 }
 
@@ -101,4 +75,28 @@ resource "aws_lb_listener" "load_balancer_listener" {
 
 output "app_url" {
   value = aws_lb.test.dns_name
+}
+
+resource "aws_launch_template" "demo_template" {
+  name_prefix   = "demo_template"
+  image_id      = "ami-0f845a2bba44d24b2"
+  instance_type = "t2.micro"
+  user_data = filebase64("${path.module}/launchscript.sh")
+  vpc_security_group_ids = [ aws_security_group.http_inbound.id, aws_security_group.internet.id]
+}
+
+resource "aws_autoscaling_group" "demo_group" {
+  name                      = "demo_app_autoscaling_group"
+  max_size                  = 4
+  min_size                  = 2
+  health_check_grace_period = 10
+  vpc_zone_identifier = data.aws_subnets.default_subnets.ids
+  launch_template {
+    id = aws_launch_template.demo_template.id
+  }
+}
+
+resource "aws_autoscaling_attachment" "demo_lb_autoscaling_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.demo_group.id
+  lb_target_group_arn = aws_lb_target_group.test_target_group.arn
 }
