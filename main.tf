@@ -6,11 +6,6 @@ variable "profile" {
   default = "terraform"
 }
 
-variable "deploy_ec2_playground" {
-  type = bool
-  default = false
-}
-
 terraform {
   required_providers {
     aws = {
@@ -35,6 +30,11 @@ resource "aws_key_pair" "akos_personal" {
   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILkLaudn7GAkiW8Z7/GVas6EjCQ2lf+/oFPhRCK5P5aD akos.fulop.github@gmail.com"
 }
 
+variable "deploy_ec2_playground" {
+  type = bool
+  default = false
+}
+
 module "ec2_practice_env" {
   source = "./ec2practice"
   count = var.deploy_ec2_playground == true ? 1 : 0
@@ -42,4 +42,15 @@ module "ec2_practice_env" {
 
 output "scaling_web_app_url" {
   value = module.ec2_practice_env[*].app_url
+}
+
+
+variable "deploy_s3_playground" {
+  type = bool
+  default = false
+}
+
+module "s3_practice_env" {
+  source = "./s3practice"
+  count = var.deploy_s3_playground == true ? 1 : 0
 }
