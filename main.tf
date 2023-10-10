@@ -54,3 +54,7 @@ module "s3_practice_env" {
   source = "./s3practice"
   count = var.deploy_s3_playground == true ? 1 : 0
 }
+
+output "static_web_app_url" {
+  value = module.s3_practice_env[*].app_url
+}

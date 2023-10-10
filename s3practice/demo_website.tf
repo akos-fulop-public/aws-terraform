@@ -42,3 +42,7 @@ resource "aws_s3_bucket_website_configuration" "demo_bucket_website" {
     suffix = aws_s3_object.index_html.key
   }
 }
+
+output "app_url" {
+  value = aws_s3_bucket_website_configuration.demo_bucket_website.website_endpoint
+}
