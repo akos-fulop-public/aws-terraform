@@ -30,6 +30,7 @@ resource "aws_key_pair" "akos_personal" {
   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILkLaudn7GAkiW8Z7/GVas6EjCQ2lf+/oFPhRCK5P5aD akos.fulop.github@gmail.com"
 }
 
+
 variable "deploy_ec2_playground" {
   type = bool
   default = false
@@ -57,4 +58,15 @@ module "s3_practice_env" {
 
 output "static_web_app_url" {
   value = module.s3_practice_env[*].app_url
+}
+
+
+variable "deploy_serverless_app" {
+  type = bool
+  default = false
+}
+
+module "serverless_env" {
+  source = "./serverless"
+  count = var.deploy_serverless_app == true ? 1 : 0
 }
