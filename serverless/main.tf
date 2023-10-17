@@ -60,5 +60,24 @@ resource "aws_lambda_function" "thumbnail_creator_lambda" {
 
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
   name = "/aws/lamdba/${aws_lambda_function.thumbnail_creator_lambda.function_name}"
+}
 
+resource "aws_lambda_permission" "allow_terraform_bucket" {
+  action = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.thumbnail_creator_lambda.arn}"
+  principal = "s3.amazonaws.com"
+  source_arn = "${aws_s3_bucket.file_upload_bucket.arn}"
+}
+
+resource "aws_s3_bucket_notification" "upload_bucket_notification" {
+  bucket = aws_s3_bucket.file_upload_bucket.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.thumbnail_creator_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "AWSLogs/"
+    filter_suffix       = ".log"
+  }
+
+  depends_on = [aws_lambda_permission.allow_terraform_bucket]
 }
